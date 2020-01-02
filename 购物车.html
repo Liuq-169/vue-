@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.css">
+    <title>购物车</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+
+        ul,li{
+            list-style: none;
+        }
+
+        #app{
+            width: 800px;
+            height: 400px;
+            border: 1px solid gray;
+            position: relative;
+        }
+    
+        .shoppBox{
+            width: 800px;
+            height: 400px;
+        }
+
+        .shoppBox>li{
+            width: 100%;
+            height: 65px;
+            border-bottom: 1px solid gainsboro;
+            display: flex;
+            justify-content: space-between;
+        }
+        .shoppBox>li>div{
+            width: 20%;
+            height: 65px;
+            text-align: center;
+            line-height: 65px;
+        }
+        .shoppBox>li>div:nth-last-of-type(1){
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .shoppBox>li>div:nth-last-of-type(3){
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .price{
+            position: absolute;
+            bottom: 0px;
+            left: 0;
+            width: 20%;
+            height: 35px;
+            text-align: left;
+            line-height: 35px;
+            padding: 20px;
+            color: darkgreen;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <ul class="shoppBox">
+            <shopp-list
+            @handle-count="handleCount" 
+            @handel-del='handelDel'
+            v-for = 's in slist'
+            :slist = 's'
+            :id = 's.id'
+            >
+
+            </shopp-list>
+        </ul>
+        <p class="price">总价：   {{common}}</p>
+    </div>
+</body>
+<script>
+    //商品数量组件  (子组件)
+    var shoppCount = {
+        props:['num'],
+        methods: {
+            handleCount(type){
+                this.$emit("handle-count",type) 
+            }
+        },
+        template:`
+        
+                <div>
+                
+                    <input  type='button' value = '-' @click = "handleCount('sub')"/>
+                    <span>{{num  }}</span>
+                    <input  type='button' value = '+' @click = "handleCount('add')"/>
+
+                </div>
+                
+        `
+    }
+
+    //商品列表组件  (父组件)
+
+    var shoppList = {
+        methods: {
+            handleCount(type){
+                this.$emit("handle-count",type,this.slist)
+            },
+
+            handelDel(){
+                var id = this.id
+                this.$emit('handel-del',id)
+            }
+        },
+        props:['slist','id'],
+        template:`
+        
+                <li>
+
+                        <div>{{slist.name}}</div>
+                        <div>{{slist.price}}</div>
+                        <shopp-count 
+                        :num = 'slist.num'
+                        @handle-count="handleCount"
+                        ></shopp-count>
+                        <div>{{slist.sum}}</div>
+                        <div><input type='button' value= '删除' @click = 'handelDel'/></div>
+
+                </li>
+        
+        `,
+        components:{
+            shoppCount
+        }
+    }
+
+    var app = new Vue({
+        el:'#app',
+        data:{
+            slist:[{
+                id:'s01',
+                name:'苹果手机',
+                price:600,
+                num:1,
+                sum:600,
+            },{
+                id:'s02',
+                name:'三星手机',
+                price:500,
+                num:1,
+                sum:500,
+            },{
+                id:'s03',
+                name:'vivo手机',
+                price:400,
+                num:1,
+                sum:400,
+            },{
+                id:'s04',
+                name:'华为手机',
+                price:800,
+                num:2,
+                sum:1600,
+            },{
+                id:'s05',
+                name:'opp手机',
+                price:600,
+                num:2,
+                sum:1200,
+            }],
+        },
+        methods: {
+            handleCount(type,slist){
+                if(type == 'sub' && slist.num>1){
+                    slist.num -= 1
+                }else if(type == 'add'){
+                    slist.num += 1
+                }
+                slist.sum = slist.num*slist.price
+            },
+
+            handelDel(id){
+                this.slist =  this.slist.filter((item)=>{
+                    return item.id != id
+                })
+                console.log('1');
+            }
+        },
+        computed: {
+            common(){
+                // for( item in this.slist){
+                //     common += parseInt(this.slist[item].sum) 
+                // }
+                return this.slist.reduce((common,item)=>{
+                    return common += item.sum
+                },0)
+            }
+        },
+        components:{
+            shoppList
+        }
+    })
+</script>
+</html>
