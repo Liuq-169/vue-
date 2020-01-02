@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+<body>
+
+    <div id="app">
+        <todata-top
+        :getmsg="getmsg"
+        :seen='isEdit'
+        :text = "msg" 
+        @handle-add='handleAdd'
+        @handle-save='handleSave'
+        >
+
+        </todata-top>
+
+        <todata-bottom 
+        @handle-del='handleDel'
+        @handle-updata='handleUpdata'
+
+        v-for='t in tolist'
+        :obj= 't'
+        :text='t.text'
+        :seen='isEdit'
+        :id='t.id'
+        
+        >
+
+        </todata-bottom>
+    </div>    
+
+</body>
+<script>
+
+    // <!-- todolist上部组件 -->
+    var todataTop = {
+        data() {
+            return {
+                msg:'',
+            }
+        },
+        props:['seen','text','getmsg'],
+        template:`
+            <div>
+                <input type="text" v-model='msg = getmsg?getmsg:msg' placeholder="请输入" ref='uptext'>
+                <button v-if='!seen' @click='handleAdd'>添加</button>
+                <button v-else @click='handleSave'>确定</button>
+            </div>
+        `,
+        methods:{
+            handleAdd(){
+                var msg = this.msg
+                this.$emit("handle-add",msg)
+                this.msg = ''
+            },
+            handleSave(){
+                this.$emit("handle-save",this.$refs.uptext.value)
+                this.msg=''
+            }
+        },
+    }
+
+    // <!-- todolist下部组件 -->
+    var todataBottom = {
+        props:['text','seen','id','obj'],
+        template:`
+                 <div>
+                     {{text}}
+                     <button @click='handleDel'>删除</button>
+                     <button @click='handleUpdata'>编辑</button>
+                 </div>
+        `,
+        methods:{
+            handleDel(){
+                var id = this.id
+                this.$emit("handle-del",id)
+            },
+            handleUpdata(){
+                var obj = this.obj                
+                this.$emit("handle-updata",[obj,this.seen])
+            }
+        }
+    }
+
+    
+    var app = new Vue({
+        el:'#app',
+        data:{
+            msg:"",
+            getmsg:"",
+            isEdit:false,
+            eidtObj:null,
+            tolist: [{
+                text: "hello boys",
+                id: +new Date() + Math.random() * 10
+            }, {
+                text: "hello girls",
+                id: +new Date() + Math.random() * 10
+            }]
+        },
+        methods:{
+            handleAdd(msg){
+                if(!msg){
+                    return
+                }
+                var obj = {};
+                obj.text = msg;
+                obj.id = +new Date() + Math.random()*10;
+                this.tolist.push(obj);
+            },
+            handleDel(id){
+                this.tolist = this.tolist.filter((t)=>{
+                    return t.id!=id 
+                })
+            },
+            handleUpdata(obj){
+                this.getmsg = obj[0].text
+                this.isEdit = !this.isEdit
+                this.eidtObj = obj[0]
+            },
+            handleSave(msg){
+                this.isEdit = !this.isEdit
+                this.eidtObj.text = msg
+                this.getmsg = ''
+            }
+        },
+        components:{
+            todataTop,
+            todataBottom
+        }
+    })
+
+</script>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+        }
+        .heroBox{
+            float: left;
+            text-align: center;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="xyApp">
+        <hero 
+        v-for='h in heroList'
+        :img='h.img'
+        :name='h.name'
+        :show='h.show'
+        @change-show = 'handleShow'
+        >
+        </hero>
+    </div>
+</body>
+<script>
+
+    // 英雄组件
+
+    var Hero = {
+        methods:{
+            hanleShow(){
+                var name = this.name;
+                var show = this.show;
+                this.$emit('change-show',{name,show})           
+            }
+        },
+        props:['img','name','show'],
+        template:`
+        
+        <div class='heroBox'>
+            <img :src='img' @click = 'hanleShow'/>  
+            <p :style="{display:show?'block':'none'}">{{name}}</p>  
+        </div>
+        
+        `
+    }
+
+    var xyApp = new Vue({
+        el:'#xyApp',
+        data:{
+            heroList:[{
+                img:'https://cp1.douguo.com/upload/caiku/8/8/1/220x220_888f47cecf8dfe67d8ca993b818db1a1.png',
+                name:'圣诞佳肴',
+                show:true
+            },{
+                img:'https://cp1.douguo.com/upload/caiku/c/7/e/220x220_c7220d71332721128e92d8e3eba0ff3e.jpg',
+                name:'阳光美食',
+                show:false
+            },{
+                name:'小鸡炖汤',
+                img:'https://cp1.douguo.com/upload/caiku/2/f/b/220x220_2ff86acd3d8efaddd49c92417578e16b.jpg',
+                show:true
+            }]
+        },
+        methods:{
+            handleShow({name,show}){
+                var hero = this.heroList.find((h)=>{  //找到数组的对应的对象
+                    return h.name == name
+                })
+                
+                hero.show = !show
+            }
+        },
+        components:{
+            Hero
+        }
+    })
+</script>
+</html>
