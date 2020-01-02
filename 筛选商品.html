@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/kognise/water.css@latest/dist/light.css"> -->
+    <title>Document</title>
+    <style>
+    
+        *{
+            padding: 0;
+            margin: 0;
+        }
+
+        ul,li{
+            list-style: none;
+        }
+
+        #app{
+            width: 1200px;
+            height: 250px;
+            /* border: 1px solid gray; */
+            position: relative;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    
+        .shoppBox{
+            width: 1200px;
+            height: 250px;
+        }
+
+        .shoppBox>li{
+            width: 100%;
+            height: 65px;
+            border-bottom: 1px solid gainsboro;
+            display: flex;
+            justify-content: space-between;
+        }
+        .shoppBox>li>div{
+            width: 33%;
+            height: 65px;
+            text-align: center;
+            line-height: 65px;
+            display: flex;
+            justify-content:start;
+            align-items: center;
+        }
+        .shoppBox>li>div:nth-last-of-type(1){
+            display: flex;
+            justify-content:center;
+        }
+
+        input{
+            height: 40px;
+            border-radius: 5px;
+            border: 1px solid grey;
+            padding-left: 10px;
+
+        }
+
+        .options{
+            border: 1px solid grey;
+            background-color: rgb(211, 222, 226);
+            height: 35px;
+            font-size: 13px;
+            padding: 0 5px;
+            line-height: 35px;
+            color: lightseagreen;
+            margin-right: 10px;
+            border-radius: 10px;
+        }
+
+        .o_close{
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .close{
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            text-align: center;
+            display: block;
+            background-color: crimson;
+            color: white;
+            line-height: 30px;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+
+        <ul class="shoppBox">
+            <shopp-list
+            @handle-add = 'handleAdd'
+            @handle-del = 'handleDel'
+            v-for='s in slist'
+            :s = 's'
+            :name = 's.shoppname'
+            :option = 's.option'
+            :val = 's.val'
+            :id = 's.id'
+            ></shopp-list>
+        </ul>
+
+    </div>
+</body>
+<script>
+    //规格选择 子组件
+    var shoppOption = {
+        props:['os','option'],
+        methods: {
+            closeOp(){
+                var os =this.os
+                var option = this.option
+                this.$emit("close-op",{os,option})
+            }
+        },
+        template:`
+            
+                    <div class='options'>
+                        <span>{{os}}</span>
+                        <span class='o_close' @click = 'closeOp'> &nbsp x </span>
+                    </div>
+            
+        `
+    }
+
+    //选择列表 父组件
+    var shoppList = {
+        data(){
+            return {
+                msg:''
+            }
+        },
+        props:['s','id','name','option','val'],
+        methods: {
+            handleAdd(){
+                var msg = this.msg
+                this.$emit('handle-add',msg,this.s)
+                this.msg = ''
+            },
+            handleDel(){
+                var id = this.id
+                this.$emit('handle-del',id)
+            },
+            closeOp({os,option}){
+                // var os =this.os
+                // var option = this.option
+                // this.$emit("close-op",{os,option})
+                console.log(os);
+                var a = option.indexOf(os)
+                option.splice(a,1)
+                
+            },
+        },
+        template:`
+        
+            <li>
+                <div>
+                    <input  type='text' :placeholder='name' v-model = 'msg'/>
+                </div>
+                <div>
+                    <shopp-option
+                    @close-op = 'closeOp'
+                    :option = 'option'
+                    v-for = 'o in option'
+                    :os = 'o'
+                    >
+                    </shopp-option>
+                    <div class='options' @click = 'handleAdd' style="background-color:white;cursor: pointer;">
+                        添加新规格
+                    </div>
+                </div>
+                <div>
+                    <span class='close' @click = 'handleDel'>x</span>
+                </div>
+            </li>
+        
+        `,
+        components:{
+            shoppOption
+        }
+    }
+
+
+    var app = new Vue({
+
+        el:'#app',
+        data:{
+            slist:[{
+                id:'s01',
+                shoppname:'内存容量',
+                option:['64GB','128GB'],
+            },{
+                id:'s02',
+                shoppname:'尺寸',
+                option:['4英尺','4.5英尺','5英尺'],
+            },{
+                id:'s03',
+                shoppname:'产品外观',
+                option:['磨砂色','星空灰'],
+            }]
+        },
+        methods: {
+            handleAdd(msg,s){
+                if(!msg){
+                    return
+                }
+                s.option.push(msg)
+            },
+            handleDel(id){
+                this.slist =  this.slist.filter((item)=>{
+                    return item.id != id
+                })
+                console.log(1);
+            },
+        },
+        components:{
+            shoppList
+        }
+
+    })
+
+    // function fn(){
+    //     var arr = []
+    //     for(var i = 0 ;i<3;i++){
+    //         arr[i] = function(){
+    //             console.log(i);
+    //         }
+    //     }
+    //     return arr
+    // }
+    // var foun = fn()
+
+    // foun[2]()
+</script>
+</html>
