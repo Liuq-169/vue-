@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <input type="text" v-model='msg' placeholder="请输入内容..">
+        <input type="button" value="添加" @click='addList' v-if='!isEdit'>
+        <input type="button" value="确定" @click='showList' v-else>
+        <ul>
+            <li v-for='(m,idx) in mlist'>
+                {{idx}}-{{m.text}}
+                <input type="button" value="删除" @click='delList(m.id)'>
+                <input type="button" value="编辑" @click='updateList(m)'>
+            </li>
+        </ul>
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            msg: '',
+            isEdit:false,
+            eidtObj:null,
+            mlist: [{
+                text: 'hello boy',
+                id:  +new Date() +Math.random() * 100
+            }, {
+                text: 'hello girl',
+                id: +new Date() +Math.random() * 100
+            }]
+        },
+        methods:{
+            addList(){
+                if(!this.msg){
+                    return
+                }
+                var obj = {}
+                obj.text = this.msg
+                obj.id = +new Date() +Math.random() * 100
+                this.mlist.push(obj)
+                this.msg = ''
+            },
+            delList(id){
+                this.mlist=this.mlist.filter((m)=>{
+                     return m.id != id 
+                })
+            },
+            updateList(m){
+                this.msg=m.text
+                this.eidtObj = m
+                this.isEdit = true
+            },
+            showList(){
+                this.eidtObj.text = this.msg 
+                this.isEdit = false
+            }
+        }
+    })
+</script>
+
+</html>
